@@ -1,1 +1,50 @@
-f
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+const passport = require('passport');
+var logger = require('morgan');
+require('./lib/seed')
+require('./lib/models')
+var cors = require('cors')
+
+var indexRouter = require('./pages/index');
+var usersRouter = require('./pages/users');
+var apiRouter = require('./pages/api');
+
+require('./lib/auth');
+
+var app = express();
+app.use(cors())
+
+// view engine setup
+app.set('pages', path.join(__dirname, 'pages'));
+app.set('pages engine', 'pug');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/api/v1', passport.authenticate('jwt', { session: false }),  apiRouter);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
