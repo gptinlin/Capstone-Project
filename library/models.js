@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes, Model } = require('sequelize');
-const { sequelize } = require('../lib/db');
+const { sequelize } = require('../library/db');
 
 
 // Models (tables) are defined here
